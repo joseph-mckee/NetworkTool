@@ -1,0 +1,97 @@
+﻿<UserControl x:Class="NetworkTool.WPF.Views.PingView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:NetworkTool.WPF.Views"
+             xmlns:viewmodel="clr-namespace:NetworkTool.WPF.ViewModels"
+             mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance Type=viewmodel:PingViewModel}"
+             FontFamily="Segoe UI" FontSize="16">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel HorizontalAlignment="Right" Margin="10px" Grid.Column="0" Orientation="Vertical">
+            <StackPanel Margin="10" HorizontalAlignment="Right" Orientation="Horizontal">
+                <Label Content="Address/Hostname:"/>
+                <TextBox Text="{Binding AddressOrHostname}" VerticalAlignment="Center" MinWidth="220px" />
+            </StackPanel>
+            <StackPanel Margin="10" HorizontalAlignment="Right" Orientation="Horizontal">
+                <Label Content="Attempts:"/>
+                <TextBox Text="{Binding Attempts}" VerticalAlignment="Center" MinWidth="220px" />
+            </StackPanel>
+            <StackPanel Margin="10" HorizontalAlignment="Right" Orientation="Horizontal">
+                <Label Content="Max Hops:"/>
+                <TextBox Text="{Binding MaxHops}" VerticalAlignment="Center" Width="220px" />
+            </StackPanel>
+            <StackPanel Margin="10" HorizontalAlignment="Right" Orientation="Horizontal">
+                <Label Content="Timeout:"/>
+                <TextBox Text="{Binding Timeout}" VerticalAlignment="Center" Width="220px" />
+            </StackPanel>
+            <StackPanel Margin="10" HorizontalAlignment="Right" Orientation="Horizontal">
+                <Label Content="Buffer:"/>
+                <TextBox Text="{Binding BufferSize}" VerticalAlignment="Center" Width="220px" />
+            </StackPanel>
+            <StackPanel Margin="10" HorizontalAlignment="Right" Orientation="Horizontal">
+                <Label Content="Delay:"/>
+                <TextBox Text="{Binding DelayTime}" VerticalAlignment="Center" Width="220px" />
+            </StackPanel>
+            <StackPanel Margin="10" HorizontalAlignment="Right" Orientation="Horizontal">
+                <Label Content="Fragmentable:"/>
+                <CheckBox IsChecked="{Binding IsFragmentable}" VerticalAlignment="Center" Width="220px"/>
+            </StackPanel>
+            <Button Height="30" Margin="10" Command="{Binding StartPingingCommand}" Content="Ping" />
+            <Button Height="30" Margin="10" Command="{Binding ClearListCommand}" Content="Clear" />
+        </StackPanel>
+        <ListBox HorizontalContentAlignment="Stretch" MinWidth="400" Grid.Column="1" ItemsSource="{Binding PingReplies}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Border BorderBrush="Black" BorderThickness="1" Margin="2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock VerticalAlignment="Center" Margin="10" Grid.RowSpan="2" Text="{Binding Index}" />
+                            <StackPanel HorizontalAlignment="Left" Grid.Column="1" Grid.Row="0" Orientation="Horizontal">
+                                <Label VerticalAlignment="Center" Content="Reply from: " />
+                                <TextBlock VerticalAlignment="Center" Text="{Binding IPAddress}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" Grid.Row="0" Orientation="Horizontal">
+                                <Label VerticalAlignment="Center" Content="Reply time: " />
+                                <TextBlock VerticalAlignment="Center" Text="{Binding RoundtripTime}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="3" Grid.Row="0" Orientation="Horizontal">
+                                <Label VerticalAlignment="Center" Content="Reply status: " />
+                                <TextBlock VerticalAlignment="Center" Text="{Binding Status}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Horizontal">
+                                <Label VerticalAlignment="Center" Content="Reply size: " />
+                                <TextBlock VerticalAlignment="Center" Text="{Binding BufferSize}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" Grid.Row="1" Orientation="Horizontal">
+                                <Label VerticalAlignment="Center" Content="Fragmentable: " />
+                                <TextBlock VerticalAlignment="Center" Text="{Binding Fragmentable}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="3" Grid.Row="1" Orientation="Horizontal">
+                                <Label VerticalAlignment="Center" Content="Reply TTL: " />
+                                <TextBlock VerticalAlignment="Center" Text="{Binding TTL}" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </Grid>
+</UserControl>

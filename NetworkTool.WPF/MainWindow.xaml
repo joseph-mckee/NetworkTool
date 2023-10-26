@@ -1,0 +1,45 @@
+﻿<Window x:Class="NetworkTool.WPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:NetworkTool.WPF"
+        xmlns:viewmodel="clr-namespace:NetworkTool.WPF.ViewModels"
+        xmlns:views="clr-namespace:NetworkTool.WPF.Views"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=viewmodel:MainViewModel}"
+        Title="MainWindow" Height="800" Width="1000" MinHeight="800" MinWidth="1000"
+        FontFamily="Segoe UI" FontSize="16">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Menu Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3">
+            <MenuItem Header="File">
+                
+            </MenuItem>
+        </Menu>
+        <TabControl TabStripPlacement="Bottom" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3">
+            <TabItem Header="Ping">
+                <views:PingView DataContext="{Binding PingViewModel}" />
+            </TabItem>
+            <TabItem Header="Trace Route">
+                <views:TraceRouteView DataContext="{Binding TraceRouteViewModel}" />
+            </TabItem>
+        </TabControl>
+        <Button Margin="5" Grid.Row="2" Grid.Column="0" Content="ARP Table" />
+        <Button Margin="5" Grid.Row="2" Grid.Column="1" Content="DNS Table" />
+        <Button Margin="5" Grid.Row="2" Grid.Column="2" Content="TBD" />
+        <ComboBox Margin="5" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3">
+            
+        </ComboBox>
+    </Grid>
+</Window>
