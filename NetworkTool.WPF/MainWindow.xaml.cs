@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using NetworkTool.WPF.ViewModels;
+﻿using NetworkTool.WPF.ViewModels;
 using System.Windows;
 
 namespace NetworkTool.WPF;

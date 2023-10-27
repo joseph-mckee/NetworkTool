@@ -8,7 +8,7 @@
         xmlns:views="clr-namespace:NetworkTool.WPF.Views"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=viewmodel:MainViewModel}"
-        Title="MainWindow" Height="800" Width="1000" MinHeight="800" MinWidth="1000"
+        Title="MainWindow" Height="700" Width="1000" MinHeight="700" MinWidth="1000"
         FontFamily="Segoe UI" FontSize="16">
     <Grid>
         <Grid.RowDefinitions>
@@ -24,7 +24,6 @@
         </Grid.ColumnDefinitions>
         <Menu Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3">
             <MenuItem Header="File">
-                
             </MenuItem>
         </Menu>
         <TabControl TabStripPlacement="Bottom" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3">
@@ -38,8 +37,5 @@
         <Button Margin="5" Grid.Row="2" Grid.Column="0" Content="ARP Table" />
         <Button Margin="5" Grid.Row="2" Grid.Column="1" Content="DNS Table" />
         <Button Margin="5" Grid.Row="2" Grid.Column="2" Content="TBD" />
-        <ComboBox Margin="5" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3">
-            
-        </ComboBox>
     </Grid>
 </Window>

@@ -1,7 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using NetworkTool.WPF.ViewModels;
-using System;
-using System.Windows;
+﻿using System.Windows;
 
 namespace NetworkTool.WPF
 {
@@ -10,5 +7,9 @@ namespace NetworkTool.WPF
     /// </summary>
     public partial class App : Application
     {
+        public App()
+        {
+
+        }
     }
 }
