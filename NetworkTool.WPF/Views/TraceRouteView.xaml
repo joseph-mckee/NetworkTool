@@ -5,6 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:NetworkTool.WPF.Views"
              xmlns:viewmodel="clr-namespace:NetworkTool.WPF.ViewModels"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:behaviors="clr-namespace:NetworkTool.WPF.Behaviors"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance Type=viewmodel:TraceRouteViewModel}">
     <Grid>
@@ -29,21 +31,20 @@
                 <TextBox Text="{Binding Timeout}" VerticalAlignment="Center" Width="220px" />
             </StackPanel>
             <StackPanel Margin="10" HorizontalAlignment="Right" Orientation="Horizontal">
-                <Label Content="Buffer:"/>
-                <TextBox Text="{Binding BufferSize}" VerticalAlignment="Center" Width="220px" />
-            </StackPanel>
-            <StackPanel Margin="10" HorizontalAlignment="Right" Orientation="Horizontal">
                 <Label Content="Delay:"/>
                 <TextBox Text="{Binding DelayTime}" VerticalAlignment="Center" Width="220px" />
             </StackPanel>
             <StackPanel Margin="10" HorizontalAlignment="Right" Orientation="Horizontal">
-                <Label Content="Fragmentable:"/>
-                <CheckBox IsChecked="{Binding IsFragmentable}" VerticalAlignment="Center" Width="220px"/>
+                <Label Content="Resolve Names?" />
+                <CheckBox IsChecked="{Binding DoResolveNames}" VerticalAlignment="Center" Width="220px"/>
             </StackPanel>
             <Button Height="30" Margin="10" Command="{Binding TraceRouteCommand}" Content="Trace Route" />
             <Button Height="30" Margin="10" Command="{Binding ClearListCommand}" Content="Clear" />
         </StackPanel>
-        <ListBox HorizontalContentAlignment="Stretch" MinWidth="400" Grid.Column="1" ItemsSource="{Binding PingReplies}">
+        <ListBox HorizontalContentAlignment="Stretch" MinWidth="400" Grid.Column="1" ItemsSource="{Binding TraceRouteReplies}">
+            <i:Interaction.Behaviors>
+                <behaviors:AutoScrollBehavior />
+            </i:Interaction.Behaviors>
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Border BorderBrush="Black" BorderThickness="1" Margin="2">
@@ -63,25 +64,17 @@
                                 <Label VerticalAlignment="Center" Content="Reply from: " />
                                 <TextBlock VerticalAlignment="Center" Text="{Binding IPAddress}" />
                             </StackPanel>
-                            <StackPanel Grid.Column="2" Grid.Row="0" Orientation="Horizontal">
+                            <StackPanel HorizontalAlignment="Left" Grid.Column="2" Grid.Row="0" Orientation="Horizontal">
                                 <Label VerticalAlignment="Center" Content="Reply time: " />
-                                <TextBlock VerticalAlignment="Center" Text="{Binding RoundtripTime}" />
+                                <TextBlock VerticalAlignment="Center" Text="{Binding RoundTripTime}" />
                             </StackPanel>
-                            <StackPanel Grid.Column="3" Grid.Row="0" Orientation="Horizontal">
-                                <Label VerticalAlignment="Center" Content="Reply status: " />
+                            <StackPanel HorizontalAlignment="Left" Grid.Column="3" Grid.Row="0" Orientation="Horizontal">
+                                <Label VerticalAlignment="Center" Content="Status: " />
                                 <TextBlock VerticalAlignment="Center" Text="{Binding Status}" />
                             </StackPanel>
-                            <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Horizontal">
-                                <Label VerticalAlignment="Center" Content="Reply size: " />
-                                <TextBlock VerticalAlignment="Center" Text="{Binding BufferSize}" />
-                            </StackPanel>
-                            <StackPanel Grid.Column="2" Grid.Row="1" Orientation="Horizontal">
-                                <Label VerticalAlignment="Center" Content="Fragmentable: " />
-                                <TextBlock VerticalAlignment="Center" Text="{Binding Fragmentable}" />
-                            </StackPanel>
-                            <StackPanel Grid.Column="3" Grid.Row="1" Orientation="Horizontal">
-                                <Label VerticalAlignment="Center" Content="Reply TTL: " />
-                                <TextBlock VerticalAlignment="Center" Text="{Binding TTL}" />
+                            <StackPanel HorizontalAlignment="Left" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Orientation="Horizontal">
+                                <Label VerticalAlignment="Center" Content="Host Name: " />
+                                <TextBlock VerticalAlignment="Center" Text="{Binding HostName}" />
                             </StackPanel>
                         </Grid>
                     </Border>

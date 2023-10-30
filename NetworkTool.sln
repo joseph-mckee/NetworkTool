@@ -5,6 +5,10 @@ VisualStudioVersion = 17.6.33829.357
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetworkTool.WPF", "NetworkTool.WPF\NetworkTool.WPF.csproj", "{5779CCC8-767D-4143-BCE0-B457526D0AA1}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuickScan.Lib", "..\..\..\RiderProjects\QuickScan\QuickScan.Lib\QuickScan.Lib.csproj", "{8251C022-7AA4-4F0A-97CD-54899DE9D5F6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testing", "Testing\Testing.csproj", "{54A833B3-07D3-40EF-8F9D-4ED3D818645C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{5779CCC8-767D-4143-BCE0-B457526D0AA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5779CCC8-767D-4143-BCE0-B457526D0AA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5779CCC8-767D-4143-BCE0-B457526D0AA1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8251C022-7AA4-4F0A-97CD-54899DE9D5F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8251C022-7AA4-4F0A-97CD-54899DE9D5F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8251C022-7AA4-4F0A-97CD-54899DE9D5F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8251C022-7AA4-4F0A-97CD-54899DE9D5F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{54A833B3-07D3-40EF-8F9D-4ED3D818645C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54A833B3-07D3-40EF-8F9D-4ED3D818645C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54A833B3-07D3-40EF-8F9D-4ED3D818645C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54A833B3-07D3-40EF-8F9D-4ED3D818645C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

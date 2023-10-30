@@ -3,6 +3,8 @@ using CommunityToolkit.Mvvm.Input;
 using NetworkTool.WPF.Models;
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Net;
 using System.Net.NetworkInformation;
 using System.Threading;
 using System.Threading.Tasks;
@@ -69,6 +71,9 @@ public partial class PingViewModel : ObservableObject
     [ObservableProperty]
     bool isCancellable;
 
+    [ObservableProperty]
+    bool isClearable;
+
     private CancellationTokenSource? cancellationTokenSource;
 
     [ObservableProperty]
@@ -86,13 +91,10 @@ public partial class PingViewModel : ObservableObject
     {
         get
         {
-            // Check if PingReplies.Count is not zero to avoid division by zero
             if (PingReplies.Count == 0)
             {
-                return "N/A"; // Or some other appropriate string
+                return "N/A";
             }
-
-            // Check if SuccessfulPings and PingReplies.Count are numbers
             if (SuccessfulPings > 0 && PingReplies.Count > 0)
             {
                 float percentage = (SuccessfulPings / PingReplies.Count) * 100;
@@ -100,7 +102,7 @@ public partial class PingViewModel : ObservableObject
             }
             else
             {
-                return "0%"; // Or some other appropriate string
+                return "0%";
             }
         }
     }
@@ -119,8 +121,8 @@ public partial class PingViewModel : ObservableObject
                 {
                     return "0 ms";
                 }
-                float average = ReplyTimes / PingReplies.Count;
-                return $"{average} ms";
+                float average = (float)ReplyTimes / (float)PingReplies.Count;
+                return $"{Math.Round(average, 2)} ms";
             }
             else
             {
@@ -132,6 +134,8 @@ public partial class PingViewModel : ObservableObject
     [ObservableProperty]
     private int progress;
 
+    [ObservableProperty]
+    private string? hostName;
 
     public PingViewModel()
     {
@@ -142,7 +146,7 @@ public partial class PingViewModel : ObservableObject
         MaxHops = 30;
         Timeout = 4000;
         BufferSize = 32;
-        DelayTime = 100;
+        DelayTime = 1000;
         IsFragmentable = false;
         IsPingable = true;
         IsCancellable = false;
@@ -151,44 +155,44 @@ public partial class PingViewModel : ObservableObject
         ReplyTimes = 0;
         Progress = 0;
         IsIndeterminate = false;
+        IsClearable = true;
     }
 
     [RelayCommand]
     async Task StartPinging()
     {
+        IsClearable = false;
         IsCancellable = true;
         ClearList();
         cancellationTokenSource = new CancellationTokenSource();
         var token = cancellationTokenSource.Token;
-        await Task.Run(() => Ping(token), token);
+        await Task.Run(() => Ping(token));
         IsCancellable = false;
+        IsClearable = true;
     }
 
     private async Task Ping(CancellationToken cancellationToken)
     {
-        Ping pingSender = new Ping();
-        PingOptions pingOptions = new PingOptions
+        Ping pingSender = new();
+        PingOptions pingOptions = new()
         {
             Ttl = MaxHops,
             DontFragment = !IsFragmentable
         };
         byte[] buffer = new byte[BufferSize];
-
+        ResolveDnsInBackground(AddressOrHostname!, cancellationToken);
         if (IsContinuous)
         {
             IsIndeterminate = true;
-            int i = 0;
             while (true)
             {
                 try
                 {
-                    await SendPing(i, buffer, pingSender, pingOptions, cancellationToken);
-                    i++;
-                    Progress++;
+                    await SendPing(Progress, buffer, pingSender, pingOptions, cancellationToken);
                 }
                 catch (OperationCanceledException ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    Debug.WriteLine(ex.Message);
                     break;
                 }
             }
@@ -200,11 +204,10 @@ public partial class PingViewModel : ObservableObject
                 try
                 {
                     await SendPing(i, buffer, pingSender, pingOptions, cancellationToken);
-                    Progress++;
                 }
                 catch (OperationCanceledException ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    Debug.WriteLine(ex.Message);
                     break;
                 }
             }
@@ -214,55 +217,82 @@ public partial class PingViewModel : ObservableObject
     async Task SendPing(int index, byte[] buffer, Ping pingSender, PingOptions pingOptions, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        if (AddressOrHostname is not null && AddressOrHostname != string.Empty)
-        {
-            try
-            {
-                PingReply reply = await pingSender.SendPingAsync(AddressOrHostname, Timeout, buffer, pingOptions);
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    PingReplies.Add(new PingReplyModel(reply, index + 1));
-                    ReplyTimes += reply.RoundtripTime;
-                    if (reply.Status == IPStatus.Success)
-                    {
-                        SuccessfulPings++;
-                    }
-                    else
-                    {
-                        FailedPings++;
-                    }
-                });
-            }
-            catch (PingException ex)
-            {
-                StopPinging();
-                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-        else
+        if (string.IsNullOrEmpty(AddressOrHostname))
         {
             StopPinging();
             MessageBox.Show("Enter an address or hostname to ping.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
         }
+
         try
         {
-            await Task.Delay(DelayTime, cancellationToken);  // Use cancellation token with delay
+            PingReply reply = await pingSender.SendPingAsync(AddressOrHostname, Timeout, buffer, pingOptions);
+
+            // Update UI on the dispatcher
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                PingReplies.Add(new PingReplyModel(reply, index + 1));
+                ReplyTimes += reply.RoundtripTime;
+                Progress++;
+                if (reply.Status == IPStatus.Success)
+                {
+                    SuccessfulPings++;
+                }
+                else
+                {
+                    FailedPings++;
+                }
+            });
+        }
+        catch (PingException ex)
+        {
+            StopPinging();
+            MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
+        try
+        {
+            if (Progress < Attempts || IsContinuous)
+            {
+                await Task.Delay(DelayTime, cancellationToken);
+            }
         }
         catch (OperationCanceledException ex)
         {
-            Console.WriteLine(ex.Message);
+            Debug.WriteLine(ex.Message);
         }
     }
+
+    void ResolveDnsInBackground(string address, CancellationToken cancellationToken)
+    {
+        Task.Run(async () =>
+        {
+            try
+            {
+                var entry = await Dns.GetHostEntryAsync(address, cancellationToken);
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    HostName = entry.HostName;
+                });
+            }
+            catch (Exception ex) 
+            {
+                Debug.WriteLine(ex.Message);
+            }
+        });
+    }
+
+
 
     [RelayCommand]
     void StopPinging()
     {
         IsCancellable = false;
         IsIndeterminate = false;
+        IsClearable = true;
         Progress = Attempts;
         cancellationTokenSource?.Cancel();
     }
-
 
     [RelayCommand]
     void ClearList()
@@ -272,5 +302,7 @@ public partial class PingViewModel : ObservableObject
         FailedPings = 0;
         ReplyTimes = 0;
         Progress = 0;
+        HostName = null;
+        IsClearable = false;
     }
 }

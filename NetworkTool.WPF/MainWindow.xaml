@@ -8,7 +8,7 @@
         xmlns:views="clr-namespace:NetworkTool.WPF.Views"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=viewmodel:MainViewModel}"
-        Title="MainWindow" Height="700" Width="1000" MinHeight="700" MinWidth="1000"
+        Title="MainWindow" Height="720" Width="1280"
         FontFamily="Segoe UI" FontSize="16">
     <Grid>
         <Grid.RowDefinitions>
@@ -32,6 +32,17 @@
             </TabItem>
             <TabItem Header="Trace Route">
                 <views:TraceRouteView DataContext="{Binding TraceRouteViewModel}" />
+            </TabItem>
+            <TabItem Header="Network Scan">
+                <views:ScanView DataContext="{Binding ScanViewModel}" />
+            </TabItem>
+            <TabItem Header="SNMP">
+            </TabItem>
+            <TabItem Header="ARP">
+            </TabItem>
+            <TabItem Header="DNS">
+            </TabItem>
+            <TabItem Header="MAC Lookup">
             </TabItem>
         </TabControl>
         <Button Margin="5" Grid.Row="2" Grid.Column="0" Content="ARP Table" />

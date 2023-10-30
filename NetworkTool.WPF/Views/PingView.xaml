@@ -19,6 +19,8 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
+        
+        <!--Input-->
         <StackPanel HorizontalAlignment="Right" Margin="10px" Grid.Column="0" Orientation="Vertical">
             <StackPanel Margin="10" HorizontalAlignment="Right" Orientation="Horizontal">
                 <Label Content="Address/Hostname:"/>
@@ -52,11 +54,11 @@
             </StackPanel>
             <Button Height="30" Margin="10" IsEnabled="{Binding IsPingable}" Command="{Binding StartPingingCommand}" Content="Ping" />
             <Button Height="30" Margin="10" IsEnabled="{Binding IsCancellable}" Command="{Binding StopPingingCommand}" Content="Cancel" />
-            <Button Height="30" Margin="10" Command="{Binding ClearListCommand}" Content="Clear" />
+            <Button Height="30" Margin="10" IsEnabled="{Binding IsClearable}" Command="{Binding ClearListCommand}" Content="Clear" />
         </StackPanel>
 
         <!--Relults Pane-->
-        <ListBox HorizontalContentAlignment="Stretch" MinWidth="400" Grid.Column="1" ItemsSource="{Binding PingReplies}">
+        <ListBox FontSize="12" HorizontalContentAlignment="Stretch" MinWidth="400" Grid.Column="1" ItemsSource="{Binding PingReplies}">
             <i:Interaction.Behaviors>
                 <behaviors:AutoScrollBehavior />
             </i:Interaction.Behaviors>
@@ -104,6 +106,8 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
+        
+        <!--Status Bar-->
         <StatusBar Grid.ColumnSpan="2" Grid.Row="1">
             <StatusBarItem>
                 <Border BorderBrush="Black" BorderThickness="1">
@@ -134,6 +138,14 @@
                     <StackPanel Orientation="Horizontal">
                         <Label Content="Average Reply Time: " HorizontalAlignment="Center" VerticalAlignment="Center" />
                         <TextBlock VerticalAlignment="Center" Text="{Binding AverageTime}" HorizontalAlignment="Center" Margin="0,0,5,0" />
+                    </StackPanel>
+                </Border>
+            </StatusBarItem>
+            <StatusBarItem>
+                <Border BorderBrush="Black" BorderThickness="1">
+                    <StackPanel Orientation="Horizontal">
+                        <Label HorizontalAlignment="Center" VerticalAlignment="Center" Content="HostName: " />
+                        <TextBlock Margin="0,0,5,0" Text="{Binding HostName}" VerticalAlignment="Center" />
                     </StackPanel>
                 </Border>
             </StatusBarItem>
