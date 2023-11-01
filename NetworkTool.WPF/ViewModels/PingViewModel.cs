@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using NetworkTool.Lib;
 using NetworkTool.WPF.Models;
 using System;
 using System.Collections.ObjectModel;
@@ -95,9 +96,9 @@ public partial class PingViewModel : ObservableObject
             {
                 return "N/A";
             }
-            if (SuccessfulPings > 0 && PingReplies.Count > 0)
+            if (SuccessfulPings > 0 || FailedPings > 0)
             {
-                float percentage = (SuccessfulPings / PingReplies.Count) * 100;
+                float percentage = ((float)SuccessfulPings / (SuccessfulPings + FailedPings)) * 100;
                 return $"{percentage}%";
             }
             else
@@ -121,7 +122,7 @@ public partial class PingViewModel : ObservableObject
                 {
                     return "0 ms";
                 }
-                float average = (float)ReplyTimes / (float)PingReplies.Count;
+                float average = (float)ReplyTimes / (float)SuccessfulPings;
                 return $"{Math.Round(average, 2)} ms";
             }
             else
@@ -166,12 +167,12 @@ public partial class PingViewModel : ObservableObject
         ClearList();
         cancellationTokenSource = new CancellationTokenSource();
         var token = cancellationTokenSource.Token;
-        await Task.Run(() => Ping(token));
+        await Task.Run(() => PreparePing(token));
         IsCancellable = false;
         IsClearable = true;
     }
 
-    private async Task Ping(CancellationToken cancellationToken)
+    private async Task PreparePing(CancellationToken cancellationToken)
     {
         Ping pingSender = new();
         PingOptions pingOptions = new()
@@ -223,17 +224,11 @@ public partial class PingViewModel : ObservableObject
             MessageBox.Show("Enter an address or hostname to ping.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
-
         try
         {
-            PingReply reply = await pingSender.SendPingAsync(AddressOrHostname, Timeout, buffer, pingOptions);
-
-            // Update UI on the dispatcher
+            PingReplyEx reply = await Task.Run(() => PingEx.Send(IPAddress.Parse("10.0.13.24"), IPAddress.Parse(AddressOrHostname), Timeout, buffer, pingOptions ), cancellationToken);
             Application.Current.Dispatcher.Invoke(() =>
             {
-                PingReplies.Add(new PingReplyModel(reply, index + 1));
-                ReplyTimes += reply.RoundtripTime;
-                Progress++;
                 if (reply.Status == IPStatus.Success)
                 {
                     SuccessfulPings++;
@@ -242,6 +237,9 @@ public partial class PingViewModel : ObservableObject
                 {
                     FailedPings++;
                 }
+                PingReplies.Add(new PingReplyModel(reply, index + 1));
+                ReplyTimes += reply.RoundTripTime;
+                Progress++;
             });
         }
         catch (PingException ex)
@@ -275,14 +273,12 @@ public partial class PingViewModel : ObservableObject
                     HostName = entry.HostName;
                 });
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
             }
-        });
+        }, cancellationToken);
     }
-
-
 
     [RelayCommand]
     void StopPinging()

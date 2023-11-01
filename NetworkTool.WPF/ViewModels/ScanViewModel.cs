@@ -2,13 +2,13 @@
 using CommunityToolkit.Mvvm.Input;
 using NetworkTool.WPF.Models;
 using QuickScan.Lib;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
-using System.Net;
 using System.Net.NetworkInformation;
-using System.Text;
+using System.Numerics;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -19,43 +19,122 @@ public partial class ScanViewModel : ObservableObject
     [ObservableProperty]
     private ObservableCollection<HostModel> hostModels = new();
 
+    private readonly SemaphoreSlim semaphore;
+
+    private VendorLookup vendorLookup = new();
+
     [ObservableProperty]
     private string? scanRange;
 
+    private readonly IEnumerable<string> scanList;
+
     public ScanViewModel()
     {
-        ScanRange = "192.168.1.1 - 192.168.1.255";
+        semaphore = new SemaphoreSlim(500);
+        ScanRange = "10.0.13.1-10.0.13.254";
+        scanList = NetworkInfoManager.GetIpRange(ScanRange);
     }
 
     [RelayCommand]
     async Task StartScan()
     {
-        var addressesToScan = NetworkInfoManager.GetIpRange(ScanRange);
-        List<Task> tasks = new();
-        foreach (var address in addressesToScan)
+        Debug.WriteLine(ARP.GetARPCache());
+        //await Task.Run(ARPScan);
+        await Task.Run(PingScan);
+    }
+
+    private async Task ARPScan()
+    {
+        var tasks = scanList.Select(async address =>
         {
-            tasks.Add(Scan(address));
-        }
+            await semaphore.WaitAsync();
+            try
+            {
+                Debug.WriteLine($"Arping {address}");
+                var mac = await ARP.SendARPAsync(address);
+                if (mac != "Unknown")
+                {
+                    var vendor = vendorLookup.GetVendorName(mac);
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        HostModels.Add(new HostModel
+                        {
+                            IPAddress = address,
+                            MACAddress = mac,
+                            Vendor = vendor,
+                            Arped = true
+                        });
+                    });
+                }
+            }
+            catch (System.Exception)
+            {
+
+                throw;
+            }
+            finally { semaphore.Release(); }
+        }).ToList();
         await Task.WhenAll(tasks);
     }
 
-    private async Task Scan(string address)
+    private async Task PingScan()
     {
-        Ping pingSender = new();
-        var reply = await pingSender.SendPingAsync(address);
-        var mac = await MacFinder.GetMacAddressAsync(address);
-        if (reply.Status == IPStatus.Success || mac != "Unknown")
+        var tasks = scanList.Select(async address =>
         {
-            Application.Current.Dispatcher.Invoke(() =>
+            await semaphore.WaitAsync();
+            try
             {
-                HostModels.Add(new HostModel
+                Debug.WriteLine($"Pinging {address}");
+                using Ping pingSender = new();
+                var reply = await pingSender.SendPingAsync(address, 500);
+                if (reply.Status == IPStatus.Success)
                 {
-                    HostName = reply.Status.ToString(),
-                    IPAddress = address,
-                    RoundTripTime = reply.RoundtripTime,
-                    MACAddress = mac
-                });
-            });
-        }
+                    try
+                    {
+                        var host = HostModels.First(x => x.IPAddress == address);
+                        Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            host.RoundTripTime = reply.RoundtripTime;
+                            host.Pinged = true;
+                        });
+                    }
+                    catch
+                    {
+                        Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            HostModels.Add(new HostModel
+                            {
+                                IPAddress = address,
+                                RoundTripTime = reply.RoundtripTime,
+                                Pinged = true
+                            });
+                        });
+                    }
+                }
+                else
+                {
+                    try
+                    {
+                        var host = HostModels.First(x => x.IPAddress == address);
+                        Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            host.RoundTripTime = reply.RoundtripTime;
+                            host.Pinged = true;
+                        });
+                    }
+                    catch
+                    {
+                        Debug.WriteLine("No living host ad address.");
+                    }
+                }
+            }
+            catch (System.Exception)
+            {
+
+                throw;
+            }
+            finally { semaphore.Release(); }
+        }).ToList();
+        await Task.WhenAll(tasks);
     }
 }

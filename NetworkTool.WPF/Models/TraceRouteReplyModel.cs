@@ -1,6 +1,4 @@
-﻿using System.Net.NetworkInformation;
-
-namespace NetworkTool.WPF.Models
+﻿namespace NetworkTool.WPF.Models
 {
     public class TraceRouteReplyModel
     {

@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NetworkTool.WPF.ViewModels;
@@ -14,6 +15,8 @@ public partial class TraceRouteViewModel : ObservableObject
 {
     [ObservableProperty]
     ObservableCollection<TraceRouteReplyModel> traceRouteReplies = new();
+    
+    private CancellationTokenSource? cancellationTokenSource;
 
     [ObservableProperty]
     string? addressOrHostname;
@@ -68,7 +71,7 @@ public partial class TraceRouteViewModel : ObservableObject
                         catch (SocketException)
                         {
                             hostName = "Unknown";
-                        } 
+                        }
                     }
                     else
                     {

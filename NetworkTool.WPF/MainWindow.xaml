@@ -36,6 +36,8 @@
             <TabItem Header="Network Scan">
                 <views:ScanView DataContext="{Binding ScanViewModel}" />
             </TabItem>
+            <TabItem Header="Port Scan">
+            </TabItem>
             <TabItem Header="SNMP">
             </TabItem>
             <TabItem Header="ARP">
@@ -44,9 +46,12 @@
             </TabItem>
             <TabItem Header="MAC Lookup">
             </TabItem>
+            <TabItem Header="SpeedTest">
+            </TabItem>
+            <TabItem Header="LAN SpeedTest (Client)">
+            </TabItem>
+            <TabItem Header="LAN SpeedTest (Server)">
+            </TabItem>
         </TabControl>
-        <Button Margin="5" Grid.Row="2" Grid.Column="0" Content="ARP Table" />
-        <Button Margin="5" Grid.Row="2" Grid.Column="1" Content="DNS Table" />
-        <Button Margin="5" Grid.Row="2" Grid.Column="2" Content="TBD" />
     </Grid>
 </Window>

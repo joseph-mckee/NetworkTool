@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\RiderProjects\QuickScan\QuickScan.Lib\QuickScan.Lib.csproj" />
+    <ProjectReference Include="..\NetworkTool.Lib\NetworkTool.Lib.csproj" />
   </ItemGroup>
 
 </Project>

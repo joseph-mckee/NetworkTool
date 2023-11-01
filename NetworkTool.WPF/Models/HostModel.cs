@@ -1,16 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System.Collections.ObjectModel;
+using System.Printing;
 
 namespace NetworkTool.WPF.Models
 {
-    public class HostModel
+    public partial class HostModel : ObservableObject
     {
-        public string? HostName { get; set; }
-        public string? IPAddress { get; set; }
-        public long RoundTripTime { get; set; }
-        public string? MACAddress { get; set; }
+        [ObservableProperty]
+        private string? hostName;
+
+        [ObservableProperty]
+        private string? iPAddress;
+
+        [ObservableProperty]
+        private long roundTripTime;
+
+        [ObservableProperty]
+        private string? mACAddress;
+
+        [ObservableProperty]
+        private string? vendor;
+
+        [ObservableProperty]
+        private bool arped;
+
+        [ObservableProperty]
+        private bool pinged;
     }
 }

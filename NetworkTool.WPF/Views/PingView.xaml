@@ -58,7 +58,7 @@
         </StackPanel>
 
         <!--Relults Pane-->
-        <ListBox FontSize="12" HorizontalContentAlignment="Stretch" MinWidth="400" Grid.Column="1" ItemsSource="{Binding PingReplies}">
+        <ListBox FontSize="12" HorizontalContentAlignment="Stretch" MinWidth="400" Grid.Column="1" ItemsSource="{Binding PingReplies, NotifyOnSourceUpdated=True}">
             <i:Interaction.Behaviors>
                 <behaviors:AutoScrollBehavior />
             </i:Interaction.Behaviors>
@@ -74,7 +74,6 @@
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*"/>
-                                <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
                             <TextBlock VerticalAlignment="Center" Margin="10" Grid.RowSpan="2" Text="{Binding Index}" />
                             <StackPanel HorizontalAlignment="Left" Grid.Column="1" Grid.Row="0" Orientation="Horizontal">
@@ -88,18 +87,6 @@
                             <StackPanel Grid.Column="3" Grid.Row="0" Orientation="Horizontal">
                                 <Label VerticalAlignment="Center" Content="Reply status: " />
                                 <TextBlock VerticalAlignment="Center" Text="{Binding Status}" />
-                            </StackPanel>
-                            <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Horizontal">
-                                <Label VerticalAlignment="Center" Content="Reply size: " />
-                                <TextBlock VerticalAlignment="Center" Text="{Binding BufferSize}" />
-                            </StackPanel>
-                            <StackPanel Grid.Column="2" Grid.Row="1" Orientation="Horizontal">
-                                <Label VerticalAlignment="Center" Content="Fragmentable: " />
-                                <TextBlock VerticalAlignment="Center" Text="{Binding Fragmentable}" />
-                            </StackPanel>
-                            <StackPanel Grid.Column="3" Grid.Row="1" Orientation="Horizontal">
-                                <Label VerticalAlignment="Center" Content="Reply TTL: " />
-                                <TextBlock VerticalAlignment="Center" Text="{Binding TTL}" />
                             </StackPanel>
                         </Grid>
                     </Border>

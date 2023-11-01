@@ -1,16 +1,17 @@
-﻿using System.Net.NetworkInformation;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Net;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
 
-public class Program
+namespace NetworkTool.Lib;
+
+public static class PingEx
 {
-
-    public static void Main(string[] args)
-    {
-
-    }
-
     public static PingReplyEx Send(IPAddress srcAddress, IPAddress destAddress, int timeout = 5000, byte[] buffer = null, PingOptions po = null)
     {
         if (destAddress == null || destAddress.AddressFamily != AddressFamily.InterNetwork || destAddress.Equals(IPAddress.Any))
@@ -48,7 +49,7 @@ public class Program
                 timeout //_In_      DWORD Timeout
                 );
             TimeSpan duration = DateTime.Now - start;
-            var reply = (Interop.Reply)Marshal.PtrToStructure(allocSpace, typeof(Interop.Reply)); // Parse the beginning of reply memory to reply struct
+            var reply = (Interop.Reply)Marshal.PtrToStructure(allocSpace, typeof(Interop.Reply))!; // Parse the beginning of reply memory to reply struct
 
             byte[] replyBuffer = null;
             if (sendbuffer.Length != 0)
