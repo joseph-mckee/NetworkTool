@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using NetworkTool.Lib;
+﻿using NetworkTool.Lib;
 using System.Net.NetworkInformation;
 
 namespace NetworkTool.WPF.Models

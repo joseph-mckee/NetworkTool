@@ -58,7 +58,7 @@
         </StackPanel>
 
         <!--Relults Pane-->
-        <ListBox FontSize="12" HorizontalContentAlignment="Stretch" MinWidth="400" Grid.Column="1" ItemsSource="{Binding PingReplies, NotifyOnSourceUpdated=True}">
+        <ListBox HorizontalContentAlignment="Stretch" MinWidth="400" Grid.Column="1" ItemsSource="{Binding PingReplies, NotifyOnSourceUpdated=True}">
             <i:Interaction.Behaviors>
                 <behaviors:AutoScrollBehavior />
             </i:Interaction.Behaviors>

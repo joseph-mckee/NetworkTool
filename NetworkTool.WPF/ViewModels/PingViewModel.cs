@@ -138,7 +138,10 @@ public partial class PingViewModel : ObservableObject
     [ObservableProperty]
     private string? hostName;
 
-    public PingViewModel()
+
+    private MainViewModel MainViewModel;
+
+    public PingViewModel(MainViewModel context)
     {
         AddressOrHostname = "8.8.8.8";
         Attempts = 4;
@@ -157,6 +160,7 @@ public partial class PingViewModel : ObservableObject
         Progress = 0;
         IsIndeterminate = false;
         IsClearable = true;
+        MainViewModel = context;
     }
 
     [RelayCommand]
@@ -226,7 +230,7 @@ public partial class PingViewModel : ObservableObject
         }
         try
         {
-            PingReplyEx reply = await Task.Run(() => PingEx.Send(IPAddress.Parse("10.0.13.24"), IPAddress.Parse(AddressOrHostname), Timeout, buffer, pingOptions ), cancellationToken);
+            PingReplyEx reply = await Task.Run(() => PingEx.Send(IPAddress.Parse(MainViewModel.SelectedInterface.IPAddress), IPAddress.Parse(AddressOrHostname), Timeout, buffer, pingOptions), cancellationToken);
             Application.Current.Dispatcher.Invoke(() =>
             {
                 if (reply.Status == IPStatus.Success)

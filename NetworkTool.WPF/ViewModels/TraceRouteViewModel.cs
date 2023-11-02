@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using NetworkTool.Lib;
 using NetworkTool.WPF.Models;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -15,7 +16,7 @@ public partial class TraceRouteViewModel : ObservableObject
 {
     [ObservableProperty]
     ObservableCollection<TraceRouteReplyModel> traceRouteReplies = new();
-    
+
     private CancellationTokenSource? cancellationTokenSource;
 
     [ObservableProperty]
@@ -33,12 +34,15 @@ public partial class TraceRouteViewModel : ObservableObject
     [ObservableProperty]
     bool doResolveNames;
 
-    public TraceRouteViewModel()
+    private MainViewModel MainViewModel;
+
+    public TraceRouteViewModel(MainViewModel context)
     {
         AddressOrHostname = "8.8.8.8";
         MaxHops = 30;
         Timeout = 500;
         DelayTime = 0;
+        MainViewModel = context;
     }
 
     [RelayCommand]
@@ -47,7 +51,6 @@ public partial class TraceRouteViewModel : ObservableObject
         ClearList();
         for (int i = 1; i < MaxHops; i++)
         {
-            Ping pingSender = new Ping();
             PingOptions pingOptions = new PingOptions();
             pingOptions.Ttl = i;
             pingOptions.DontFragment = true;
@@ -56,7 +59,7 @@ public partial class TraceRouteViewModel : ObservableObject
             {
                 Stopwatch stopWatch = new();
                 stopWatch.Start();
-                PingReply reply = await pingSender.SendPingAsync(AddressOrHostname, Timeout, buffer, pingOptions);
+                PingReplyEx reply = await Task.Run(() => PingEx.Send(IPAddress.Parse(MainViewModel.SelectedInterface.IPAddress), IPAddress.Parse(AddressOrHostname), Timeout, buffer, pingOptions));
                 stopWatch.Stop();
                 if (reply.Status == IPStatus.Success || reply.Status == IPStatus.TtlExpired)
                 {
@@ -65,7 +68,7 @@ public partial class TraceRouteViewModel : ObservableObject
                     {
                         try
                         {
-                            var dnsQuery = await Dns.GetHostEntryAsync(reply.Address);
+                            var dnsQuery = await Dns.GetHostEntryAsync(reply.IpAddress);
                             hostName = dnsQuery.HostName;
                         }
                         catch (SocketException)
@@ -80,7 +83,7 @@ public partial class TraceRouteViewModel : ObservableObject
                     TraceRouteReplies.Add(new TraceRouteReplyModel
                     {
                         Index = i,
-                        IPAddress = reply.Address.ToString(),
+                        IPAddress = reply.IpAddress.ToString(),
                         HostName = hostName,
                         RoundTripTime = stopWatch.ElapsedMilliseconds.ToString(),
                         Status = reply.Status.ToString()
@@ -93,7 +96,7 @@ public partial class TraceRouteViewModel : ObservableObject
                     TraceRouteReplies.Add(new TraceRouteReplyModel
                     {
                         Index = i,
-                        IPAddress = reply.Address.ToString(),
+                        IPAddress = reply.IpAddress.ToString(),
                         RoundTripTime = "N/A",
                         Status = reply.Status.ToString()
                     });

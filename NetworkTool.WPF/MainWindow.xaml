@@ -33,25 +33,41 @@
             <TabItem Header="Trace Route">
                 <views:TraceRouteView DataContext="{Binding TraceRouteViewModel}" />
             </TabItem>
-            <TabItem Header="Network Scan">
+            <TabItem IsSelected="{Binding IsNetworkScan, Mode=OneWayToSource}" Header="Network Scan">
                 <views:ScanView DataContext="{Binding ScanViewModel}" />
             </TabItem>
-            <TabItem Header="Port Scan">
+            <TabItem IsEnabled="False" Header="Port Scan">
             </TabItem>
-            <TabItem Header="SNMP">
+            <TabItem IsEnabled="False" Header="SNMP">
             </TabItem>
-            <TabItem Header="ARP">
+            <TabItem IsEnabled="False" Header="ARP">
             </TabItem>
-            <TabItem Header="DNS">
+            <TabItem IsEnabled="False" Header="DNS">
             </TabItem>
-            <TabItem Header="MAC Lookup">
+            <TabItem IsEnabled="False" Header="MAC Lookup">
             </TabItem>
-            <TabItem Header="SpeedTest">
+            <TabItem IsEnabled="False" Header="SpeedTest">
             </TabItem>
-            <TabItem Header="LAN SpeedTest (Client)">
+            <TabItem IsEnabled="False" Header="LAN SpeedTest (Client)">
             </TabItem>
-            <TabItem Header="LAN SpeedTest (Server)">
+            <TabItem IsEnabled="False" Header="LAN SpeedTest (Server)">
             </TabItem>
         </TabControl>
+        <StackPanel Margin="10" HorizontalAlignment="Stretch" Grid.ColumnSpan="3" Grid.Row="2" Orientation="Horizontal">
+            <Label VerticalAlignment="Center" Content="Interface: " />
+            <ComboBox IsEnabled="{Binding IsNetworkScan}" HorizontalAlignment="Stretch" SelectedIndex="{Binding SelectedIndex}" ItemsSource="{Binding NetworkInterfaces}">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock VerticalAlignment="Center" Text="{Binding Name}" />
+                            <Label VerticalAlignment="Center" Content=" | " />
+                            <TextBlock VerticalAlignment="Center" Text="{Binding Description}" />
+                            <Label VerticalAlignment="Center" Content=" | " />
+                            <TextBlock VerticalAlignment="Center" Text="{Binding IPAddress}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+        </StackPanel>
     </Grid>
 </Window>

@@ -1,6 +1,6 @@
-﻿using System.Net.NetworkInformation;
+﻿using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using System.Net;
 using System.Runtime.InteropServices;
 
 public class Program
@@ -8,7 +8,6 @@ public class Program
 
     public static void Main(string[] args)
     {
-
     }
 
     public static PingReplyEx Send(IPAddress srcAddress, IPAddress destAddress, int timeout = 5000, byte[] buffer = null, PingOptions po = null)

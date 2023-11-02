@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
-using System.Net.NetworkInformation;
 using System.Net;
+using System.Net.NetworkInformation;
 
 namespace NetworkTool.Lib;
 
