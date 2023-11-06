@@ -1,28 +1,20 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace NetworkTool.WPF.Models
+namespace NetworkTool.WPF.Models;
+
+public partial class HostModel : ObservableObject
 {
-    public partial class HostModel : ObservableObject
-    {
-        [ObservableProperty]
-        private string? hostName;
+    [ObservableProperty] private bool _arped;
 
-        [ObservableProperty]
-        private string? iPAddress;
+    [ObservableProperty] private string? _hostName;
 
-        [ObservableProperty]
-        private long roundTripTime;
+    [ObservableProperty] private string? _ipAddress;
 
-        [ObservableProperty]
-        private string? mACAddress;
+    [ObservableProperty] private string? _macAddress;
 
-        [ObservableProperty]
-        private string? vendor;
+    [ObservableProperty] private bool _pinged;
 
-        [ObservableProperty]
-        private bool arped;
+    [ObservableProperty] private long _roundTripTime;
 
-        [ObservableProperty]
-        private bool pinged;
-    }
+    [ObservableProperty] private string? _vendor;
 }

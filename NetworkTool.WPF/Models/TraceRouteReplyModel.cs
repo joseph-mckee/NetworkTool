@@ -1,11 +1,10 @@
-﻿namespace NetworkTool.WPF.Models
+﻿namespace NetworkTool.WPF.Models;
+
+public class TraceRouteReplyModel
 {
-    public class TraceRouteReplyModel
-    {
-        public int Index { get; set; }
-        public string? IPAddress { get; set; }
-        public string? HostName { get; set; }
-        public string? RoundTripTime { get; set; }
-        public string? Status { get; set; }
-    }
+    public int Index { get; init; }
+    public string? IpAddress { get; init; }
+    public string? HostName { get; init; }
+    public string? RoundTripTime { get; init; }
+    public string? Status { get; init; }
 }

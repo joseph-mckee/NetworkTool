@@ -1,79 +1,63 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using NetworkTool.WPF.Models;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net.NetworkInformation;
+using CommunityToolkit.Mvvm.ComponentModel;
+using NetworkTool.WPF.Models;
 
 namespace NetworkTool.WPF.ViewModels;
 
 public partial class MainViewModel : ObservableObject
 {
-    public PingViewModel PingViewModel { get; set; }
-    public TraceRouteViewModel TraceRouteViewModel { get; set; }
-    public ScanViewModel ScanViewModel { get; set; }
+    private bool _isNetworkScan;
 
-    private bool isNetworkScan;
+    [ObservableProperty] private ObservableCollection<InterfaceModel> _networkInterfaces = new();
 
-    public bool IsNetworkScan
-    {
-        get => isNetworkScan;
-        set
-        {
-            SetProperty(ref isNetworkScan, !value);
-        }
-    }
+    private int _selectedIndex;
 
-    [ObservableProperty]
-    private ObservableCollection<InterfaceModel> networkInterfaces = new();
+    private InterfaceModel? _selectedInterface;
 
-    private InterfaceModel selectedInterface;
-
-    public InterfaceModel SelectedInterface
-    {
-        get
-        {
-            return selectedInterface;
-        }
-        set
-        {
-            SetProperty(ref selectedInterface, value);
-        }
-    }
-
-    private int selectedIndex;
-
-    public int SelectedIndex
-    {
-        get
-        {
-            return selectedIndex;
-        }
-        set
-        {
-            SetProperty(ref selectedInterface, NetworkInterfaces[value]);
-            SetProperty(ref selectedIndex, value);
-        }
-    }
     public MainViewModel()
     {
-        var nics = NetworkInterface.GetAllNetworkInterfaces();
-        foreach (NetworkInterface nic in nics)
-        {
-            if (nic.OperationalStatus == OperationalStatus.Up)
-            {
-                networkInterfaces.Add(new InterfaceModel
+        var networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
+        foreach (var networkInterface in networkInterfaces)
+            if (networkInterface.OperationalStatus == OperationalStatus.Up)
+                _networkInterfaces.Add(new InterfaceModel
                 {
-                    Name = nic.Name,
-                    Description = nic.Description,
-                    IPAddress = nic.GetIPProperties().UnicastAddresses.First(ip => ip.Address.GetAddressBytes().Length == 4).Address.ToString()
+                    Name = networkInterface.Name,
+                    Description = networkInterface.Description,
+                    IpAddress = networkInterface.GetIPProperties().UnicastAddresses
+                        .First(ip => ip.Address.GetAddressBytes().Length == 4).Address.ToString(),
+                    Index = networkInterface.GetIPProperties().GetIPv4Properties().Index
                 });
-            }
-        }
         SelectedIndex = 0;
         PingViewModel = new PingViewModel(this);
         TraceRouteViewModel = new TraceRouteViewModel(this);
         ScanViewModel = new ScanViewModel();
+        ArpViewModel = new ArpViewModel();
         IsNetworkScan = true;
     }
-}
 
+    public PingViewModel PingViewModel { get; }
+    public TraceRouteViewModel TraceRouteViewModel { get; }
+    public ScanViewModel ScanViewModel { get; }
+
+    public ArpViewModel ArpViewModel { get; }
+
+    public bool IsNetworkScan
+    {
+        get => _isNetworkScan;
+        set => SetProperty(ref _isNetworkScan, !value);
+    }
+
+    public InterfaceModel? SelectedInterface => _selectedInterface;
+
+    public int SelectedIndex
+    {
+        get => _selectedIndex;
+        set
+        {
+            SetProperty(ref _selectedInterface, NetworkInterfaces[value]);
+            SetProperty(ref _selectedIndex, value);
+        }
+    }
+}

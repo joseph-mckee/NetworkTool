@@ -1,11 +1,9 @@
-﻿using System.Windows.Controls;
-
-namespace NetworkTool.WPF.Views;
+﻿namespace NetworkTool.WPF.Views;
 
 /// <summary>
-/// Interaction logic for PingView.xaml
+///     Interaction logic for PingView.xaml
 /// </summary>
-public partial class PingView : UserControl
+public partial class PingView
 {
     public PingView()
     {

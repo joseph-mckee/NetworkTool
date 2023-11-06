@@ -1,14 +1,13 @@
 ﻿using NetworkTool.WPF.ViewModels;
-using System.Windows;
 
-namespace NetworkTool.WPF;
+namespace NetworkTool.WPF.Views;
 
 /// <summary>
-/// Interaction logic for MainWindow.xaml
+///     Interaction logic for MainView.xaml
 /// </summary>
-public partial class MainWindow : Window
+public partial class MainView
 {
-    public MainWindow()
+    public MainView()
     {
         DataContext = new MainViewModel();
         InitializeComponent();

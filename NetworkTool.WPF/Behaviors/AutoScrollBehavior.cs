@@ -1,20 +1,21 @@
-﻿using Microsoft.Xaml.Behaviors;
-using System;
+﻿using System;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Windows.Controls;
+using Microsoft.Xaml.Behaviors;
 
 namespace NetworkTool.WPF.Behaviors;
 
 public class AutoScrollBehavior : Behavior<ListBox>
 {
-    private INotifyCollectionChanged oldCollection;
+    private INotifyCollectionChanged? _oldCollection;
 
     protected override void OnAttached()
     {
         base.OnAttached();
-        DependencyPropertyDescriptor itemsSourceProperty = DependencyPropertyDescriptor.FromProperty(ListBox.ItemsSourceProperty, typeof(ListBox));
-        itemsSourceProperty.AddValueChanged(AssociatedObject, ItemsSourceChanged);
+        var itemsSourceProperty =
+            DependencyPropertyDescriptor.FromProperty(ItemsControl.ItemsSourceProperty, typeof(ListBox));
+        itemsSourceProperty.AddValueChanged(AssociatedObject, ItemsSourceChanged!);
         AttachCollectionChanged(AssociatedObject.ItemsSource as INotifyCollectionChanged);
     }
 
@@ -23,40 +24,30 @@ public class AutoScrollBehavior : Behavior<ListBox>
         AttachCollectionChanged(AssociatedObject.ItemsSource as INotifyCollectionChanged);
     }
 
-    private void AttachCollectionChanged(INotifyCollectionChanged newCollection)
+    private void AttachCollectionChanged(INotifyCollectionChanged? newCollection)
     {
-        if (oldCollection != null)
-        {
-            oldCollection.CollectionChanged -= OnCollectionChanged;
-        }
+        if (_oldCollection != null) _oldCollection.CollectionChanged -= OnCollectionChanged!;
 
-        if (newCollection != null)
-        {
-            newCollection.CollectionChanged += OnCollectionChanged;
-        }
+        if (newCollection != null) newCollection.CollectionChanged += OnCollectionChanged!;
 
-        oldCollection = newCollection;
+        _oldCollection = newCollection;
     }
 
     protected override void OnDetaching()
     {
-        DependencyPropertyDescriptor itemsSourceProperty = DependencyPropertyDescriptor.FromProperty(ListBox.ItemsSourceProperty, typeof(ListBox));
-        itemsSourceProperty.RemoveValueChanged(AssociatedObject, ItemsSourceChanged);
+        var itemsSourceProperty =
+            DependencyPropertyDescriptor.FromProperty(ItemsControl.ItemsSourceProperty, typeof(ListBox));
+        itemsSourceProperty.RemoveValueChanged(AssociatedObject, ItemsSourceChanged!);
 
-        if (oldCollection != null)
-        {
-            oldCollection.CollectionChanged -= OnCollectionChanged;
-        }
+        if (_oldCollection != null) _oldCollection.CollectionChanged -= OnCollectionChanged!;
 
         base.OnDetaching();
     }
 
     private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
-        if (e.Action == NotifyCollectionChangedAction.Add)
-        {
-            var newItem = e.NewItems[0];
-            AssociatedObject.ScrollIntoView(newItem);
-        }
+        if (e.Action != NotifyCollectionChangedAction.Add) return;
+        var newItem = e.NewItems?[0];
+        if (newItem != null) AssociatedObject.ScrollIntoView(newItem);
     }
 }

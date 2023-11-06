@@ -2,7 +2,8 @@
 
 public class InterfaceModel
 {
-    public string? Name { get; set; }
-    public string? Description { get; set; }
-    public string? IPAddress { get; set; }
+    public string? Name { get; init; }
+    public string? Description { get; init; }
+    public string? IpAddress { get; init; }
+    public int Index { get; init; }
 }

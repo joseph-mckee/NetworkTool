@@ -1,37 +1,34 @@
 ﻿using System.Runtime.InteropServices;
-/// <summary>Interoperability Helper
+
+/// <summary>
+///     Interoperability Helper
 ///     <see cref="http://msdn.microsoft.com/en-us/library/windows/desktop/bb309069(v=vs.85).aspx" />
 /// </summary>
 internal static class Interop
 {
-    private static IntPtr? icmpHandle;
+    private static IntPtr? _icmpHandle;
     private static int? _replyStructLength;
 
-    /// <summary>Returns the application legal icmp handle. Should be close by IcmpCloseHandle
+    /// <summary>
+    ///     Returns the application legal icmp handle. Should be close by IcmpCloseHandle
     ///     <see cref="http://msdn.microsoft.com/en-us/library/windows/desktop/aa366045(v=vs.85).aspx" />
     /// </summary>
     public static IntPtr IcmpHandle
     {
         get
         {
-            if (icmpHandle == null)
-            {
-                icmpHandle = IcmpCreateFile();
-                //TODO Close Icmp Handle appropiate
-            }
-
-            return icmpHandle.GetValueOrDefault();
+            if (_icmpHandle == null) _icmpHandle = IcmpCreateFile();
+            //TODO Close Icmp Handle appropiate
+            return _icmpHandle.GetValueOrDefault();
         }
     }
+
     /// <summary>Returns the the marshaled size of the reply struct.</summary>
     public static int ReplyMarshalLength
     {
         get
         {
-            if (_replyStructLength == null)
-            {
-                _replyStructLength = Marshal.SizeOf(typeof(Reply));
-            }
+            if (_replyStructLength == null) _replyStructLength = Marshal.SizeOf(typeof(Reply));
             return _replyStructLength.GetValueOrDefault();
         }
     }
@@ -39,10 +36,15 @@ internal static class Interop
 
     [DllImport("Iphlpapi.dll", SetLastError = true)]
     private static extern IntPtr IcmpCreateFile();
+
     [DllImport("Iphlpapi.dll", SetLastError = true)]
     private static extern bool IcmpCloseHandle(IntPtr handle);
+
     [DllImport("Iphlpapi.dll", SetLastError = true)]
-    public static extern uint IcmpSendEcho2Ex(IntPtr icmpHandle, IntPtr Event, IntPtr apcroutine, IntPtr apccontext, UInt32 sourceAddress, UInt32 destinationAddress, byte[] requestData, short requestSize, ref Option requestOptions, IntPtr replyBuffer, int replySize, int timeout);
+    public static extern uint IcmpSendEcho2Ex(IntPtr icmpHandle, IntPtr @event, IntPtr apcroutine, IntPtr apccontext,
+        uint sourceAddress, uint destinationAddress, byte[] requestData, short requestSize, ref Option requestOptions,
+        IntPtr replyBuffer, int replySize, int timeout);
+
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
     public struct Option
     {
@@ -52,10 +54,11 @@ internal static class Interop
         public readonly byte OptionsSize;
         public readonly IntPtr OptionsData;
     }
+
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
     public struct Reply
     {
-        public readonly UInt32 Address;
+        public readonly uint Address;
         public readonly int Status;
         public readonly int RoundTripTime;
         public readonly short DataSize;

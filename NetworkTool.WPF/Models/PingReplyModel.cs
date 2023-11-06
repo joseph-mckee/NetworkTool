@@ -1,20 +1,20 @@
-﻿using NetworkTool.Lib;
-using System.Net.NetworkInformation;
+﻿using System.Net.NetworkInformation;
+using NetworkTool.Lib.Ping;
 
-namespace NetworkTool.WPF.Models
+namespace NetworkTool.WPF.Models;
+
+public class PingReplyModel
 {
-    public partial class PingReplyModel
+    public PingReplyModel(PingReplyEx reply, int index)
     {
-        public int Index { get; set; }
-        public string? IPAddress { get; set; }
-        public long RoundtripTime { get; set; }
-        public IPStatus Status { get; set; }
-        public PingReplyModel(PingReplyEx reply, int index)
-        {
-            Index = index;
-            IPAddress = reply.IpAddress?.ToString() ?? string.Empty;
-            RoundtripTime = reply.RoundTripTime;
-            Status = reply.Status;
-        }
+        Index = index;
+        IpAddress = reply.IpAddress.ToString();
+        RoundtripTime = reply.RoundTripTime;
+        Status = reply.Status;
     }
+
+    public int Index { get; }
+    public string? IpAddress { get; }
+    public long RoundtripTime { get; }
+    public IPStatus Status { get; }
 }

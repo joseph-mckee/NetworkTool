@@ -1,15 +1,8 @@
-﻿using System.Windows;
+﻿namespace NetworkTool.WPF;
 
-namespace NetworkTool.WPF
+/// <summary>
+///     Interaction logic for App.xaml
+/// </summary>
+public partial class App
 {
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
-    public partial class App : Application
-    {
-        public App()
-        {
-
-        }
-    }
 }

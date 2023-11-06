@@ -1,11 +1,9 @@
-﻿using System.Windows.Controls;
-
-namespace NetworkTool.WPF.Views;
+﻿namespace NetworkTool.WPF.Views;
 
 /// <summary>
-/// Interaction logic for TraceRouteView.xaml
+///     Interaction logic for TraceRouteView.xaml
 /// </summary>
-public partial class TraceRouteView : UserControl
+public partial class TraceRouteView
 {
     public TraceRouteView()
     {

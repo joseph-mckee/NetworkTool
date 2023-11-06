@@ -1,40 +1,30 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using NetworkTool.Lib;
-using NetworkTool.WPF.Models;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using System.Threading;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using NetworkTool.Lib.Ping;
+using NetworkTool.WPF.Models;
 
 namespace NetworkTool.WPF.ViewModels;
 
 public partial class TraceRouteViewModel : ObservableObject
 {
-    [ObservableProperty]
-    ObservableCollection<TraceRouteReplyModel> traceRouteReplies = new();
+    private readonly MainViewModel _mainViewModel;
+    [ObservableProperty] private string? _addressOrHostname;
 
-    private CancellationTokenSource? cancellationTokenSource;
+    [ObservableProperty] private int _delayTime;
 
-    [ObservableProperty]
-    string? addressOrHostname;
+    [ObservableProperty] private bool _doResolveNames;
 
-    [ObservableProperty]
-    int maxHops;
+    [ObservableProperty] private int _maxHops;
 
-    [ObservableProperty]
-    int timeout;
-
-    [ObservableProperty]
-    int delayTime;
-
-    [ObservableProperty]
-    bool doResolveNames;
-
-    private MainViewModel MainViewModel;
+    [ObservableProperty] private int _timeout;
+    [ObservableProperty] private ObservableCollection<TraceRouteReplyModel> _traceRouteReplies = new();
 
     public TraceRouteViewModel(MainViewModel context)
     {
@@ -42,30 +32,35 @@ public partial class TraceRouteViewModel : ObservableObject
         MaxHops = 30;
         Timeout = 500;
         DelayTime = 0;
-        MainViewModel = context;
+        _mainViewModel = context;
     }
 
     [RelayCommand]
-    async Task TraceRoute()
+    private async Task TraceRoute()
     {
         ClearList();
-        for (int i = 1; i < MaxHops; i++)
+        for (var i = 1; i < MaxHops; i++)
         {
-            PingOptions pingOptions = new PingOptions();
-            pingOptions.Ttl = i;
-            pingOptions.DontFragment = true;
-            byte[] buffer = new byte[32];
+            PingOptions pingOptions = new()
+            {
+                Ttl = i,
+                DontFragment = true
+            };
+            var buffer = new byte[32];
             if (AddressOrHostname is not null)
             {
                 Stopwatch stopWatch = new();
                 stopWatch.Start();
-                PingReplyEx reply = await Task.Run(() => PingEx.Send(IPAddress.Parse(MainViewModel.SelectedInterface.IPAddress), IPAddress.Parse(AddressOrHostname), Timeout, buffer, pingOptions));
+                var reply = await Task.Run(() =>
+                    PingEx.Send(
+                        IPAddress.Parse(_mainViewModel.SelectedInterface?.IpAddress ??
+                                        throw new InvalidOperationException()),
+                        IPAddress.Parse(AddressOrHostname), Timeout, buffer, pingOptions));
                 stopWatch.Stop();
-                if (reply.Status == IPStatus.Success || reply.Status == IPStatus.TtlExpired)
+                if (reply.Status is IPStatus.Success or IPStatus.TtlExpired)
                 {
                     string hostName;
-                    if (DoResolveNames == true)
-                    {
+                    if (DoResolveNames)
                         try
                         {
                             var dnsQuery = await Dns.GetHostEntryAsync(reply.IpAddress);
@@ -75,15 +70,13 @@ public partial class TraceRouteViewModel : ObservableObject
                         {
                             hostName = "Unknown";
                         }
-                    }
                     else
-                    {
                         hostName = "Unknown";
-                    }
+
                     TraceRouteReplies.Add(new TraceRouteReplyModel
                     {
                         Index = i,
-                        IPAddress = reply.IpAddress.ToString(),
+                        IpAddress = reply.IpAddress.ToString(),
                         HostName = hostName,
                         RoundTripTime = stopWatch.ElapsedMilliseconds.ToString(),
                         Status = reply.Status.ToString()
@@ -96,22 +89,20 @@ public partial class TraceRouteViewModel : ObservableObject
                     TraceRouteReplies.Add(new TraceRouteReplyModel
                     {
                         Index = i,
-                        IPAddress = reply.IpAddress.ToString(),
+                        IpAddress = reply.IpAddress.ToString(),
                         RoundTripTime = "N/A",
                         Status = reply.Status.ToString()
                     });
                 }
             }
-            else
-            {
-                // Handle empty field
-            }
+
+            // Handle empty field
             await Task.Delay(DelayTime);
         }
     }
 
     [RelayCommand]
-    void ClearList()
+    private void ClearList()
     {
         TraceRouteReplies.Clear();
     }

@@ -1,134 +1,91 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using NetworkTool.Lib;
-using NetworkTool.WPF.Models;
-using QuickScan.Lib;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.NetworkInformation;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using NetworkTool.Lib.Arp;
+using NetworkTool.WPF.Models;
+using QuickScan.Lib;
 
 namespace NetworkTool.WPF.ViewModels;
 
 public partial class ScanViewModel : ObservableObject
 {
-    [ObservableProperty]
-    private ObservableCollection<HostModel> hostModels = new();
+    private readonly IEnumerable<string> _scanList;
 
-    private readonly SemaphoreSlim semaphore;
+    private readonly SemaphoreSlim _semaphore;
 
-    private VendorLookup vendorLookup = new();
+    private readonly VendorLookup _vendorLookup = new();
 
-    [ObservableProperty]
-    private string? scanRange;
+    [ObservableProperty] private ObservableCollection<HostModel> _hostModels = new();
 
-    private readonly IEnumerable<string> scanList;
+    [ObservableProperty] private string? _scanRange;
 
     public ScanViewModel()
     {
-        semaphore = new SemaphoreSlim(500);
+        _semaphore = new SemaphoreSlim(500);
         ScanRange = "192.168.1.1-192.168.1.254";
-        scanList = NetworkInfoManager.GetIpRange(ScanRange);
+        _scanList = NetworkInfoManager.GetIpRange(ScanRange);
     }
 
     [RelayCommand]
-    async Task StartScan()
+    private async Task StartScan()
     {
-        //StringBuilder display = new StringBuilder();
-
-        //foreach (var iface in NetworkInterface.GetAllNetworkInterfaces())
-        //{
-        //    try
-        //    {
-        //        var ipProperties = iface.GetIPProperties();
-        //        var ipv4Props = ipProperties.GetIPv4Properties();
-        //        if (ipv4Props != null)
-        //        {
-        //            int index = ipv4Props.Index;
-        //            var entries = ARP.GetARPCache().Where(i => i.Index == index);
-        //            var ipv4Address = ipProperties.UnicastAddresses
-        //                .FirstOrDefault(a => a.Address.GetAddressBytes().Length == 4)?.Address;
-
-        //            if (ipv4Address != null)
-        //            {
-        //                display.AppendLine($"{iface.Name} | {iface.Description} | {ipv4Address}");
-        //                foreach (var entry in entries)
-        //                {
-        //                    display.AppendLine($"{entry.IPAddress} | {entry.MACAddress}");
-        //                }
-        //            }
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        // Handle the exception, log it, or display a message to the user
-        //        display.AppendLine($"Error retrieving information for interface {iface.Name}: {ex.Message}");
-        //    }
-        //}
-
-        //MessageBox.Show(display.ToString());
-
-
-        //Debug.WriteLine(ARP.GetARPCache());
-        await Task.Run(ARPScan);
+        await Task.Run(ArpScan);
         await Task.Run(PingScan);
     }
 
-    private async Task ARPScan()
+    private async Task ArpScan()
     {
-        var tasks = scanList.Select(async address =>
+        var tasks = _scanList.Select(async address =>
         {
-            await semaphore.WaitAsync();
+            await _semaphore.WaitAsync();
             try
             {
                 Debug.WriteLine($"Arping {address}");
-                var mac = await ARP.SendARPAsync(address);
+                var mac = await Arp.SendArpAsync(address);
                 if (mac != "Unknown")
                 {
-                    var vendor = vendorLookup.GetVendorName(mac);
+                    var vendor = _vendorLookup.GetVendorName(mac);
                     Application.Current.Dispatcher.Invoke(() =>
                     {
                         HostModels.Add(new HostModel
                         {
-                            IPAddress = address,
-                            MACAddress = mac,
+                            IpAddress = address,
+                            MacAddress = mac,
                             Vendor = vendor,
                             Arped = true
                         });
                     });
                 }
             }
-            catch (System.Exception)
+            finally
             {
-
-                throw;
+                _semaphore.Release();
             }
-            finally { semaphore.Release(); }
         }).ToList();
         await Task.WhenAll(tasks);
     }
 
     private async Task PingScan()
     {
-        var tasks = scanList.Select(async address =>
+        var tasks = _scanList.Select(async address =>
         {
-            await semaphore.WaitAsync();
+            await _semaphore.WaitAsync();
             try
             {
                 Debug.WriteLine($"Pinging {address}");
                 using Ping pingSender = new();
                 var reply = await pingSender.SendPingAsync(address, 500);
                 if (reply.Status == IPStatus.Success)
-                {
                     try
                     {
-                        var host = HostModels.First(x => x.IPAddress == address);
+                        var host = HostModels.First(x => x.IpAddress == address);
                         Application.Current.Dispatcher.Invoke(() =>
                         {
                             host.RoundTripTime = reply.RoundtripTime;
@@ -141,18 +98,16 @@ public partial class ScanViewModel : ObservableObject
                         {
                             HostModels.Add(new HostModel
                             {
-                                IPAddress = address,
+                                IpAddress = address,
                                 RoundTripTime = reply.RoundtripTime,
                                 Pinged = true
                             });
                         });
                     }
-                }
                 else
-                {
                     try
                     {
-                        var host = HostModels.First(x => x.IPAddress == address);
+                        var host = HostModels.First(x => x.IpAddress == address);
                         Application.Current.Dispatcher.Invoke(() =>
                         {
                             host.RoundTripTime = reply.RoundtripTime;
@@ -163,14 +118,11 @@ public partial class ScanViewModel : ObservableObject
                     {
                         Debug.WriteLine("No living host at address.");
                     }
-                }
             }
-            catch (System.Exception)
+            finally
             {
-
-                throw;
+                _semaphore.Release();
             }
-            finally { semaphore.Release(); }
         }).ToList();
         await Task.WhenAll(tasks);
     }
