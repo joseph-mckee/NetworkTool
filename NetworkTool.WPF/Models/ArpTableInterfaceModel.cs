@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net.NetworkInformation;
+using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using NetworkTool.Lib.Arp;
 
@@ -12,6 +13,18 @@ public partial class ArpTableInterfaceModel : ObservableObject
 
     public ArpTableInterfaceModel(NetworkInterface networkInterface)
     {
+        try
+        {
+            var test = networkInterface.GetIPProperties().UnicastAddresses
+                .First(ip => ip.Address.GetAddressBytes().Length == 4);
+        }
+        catch
+        {
+            // const string message = "Network interface was detected without IPv4. Skipping.";
+            // const string title = "Warning";
+            // MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
         var name = networkInterface.Name;
         var description = networkInterface.Description;
         var address = networkInterface.GetIPProperties().UnicastAddresses

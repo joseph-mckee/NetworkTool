@@ -2,19 +2,11 @@
 
 namespace NetworkTool.Lib.Ping;
 
-/// <summary>
-///     Interoperability Helper
-///     <see cref="http://msdn.microsoft.com/en-us/library/windows/desktop/bb309069(v=vs.85).aspx" />
-/// </summary>
 public static class Interop
 {
     private static IntPtr? _icmpHandle;
     private static int? _replyStructLength;
 
-    /// <summary>
-    ///     Returns the application legal icmp handle. Should be close by IcmpCloseHandle
-    ///     <see cref="http://msdn.microsoft.com/en-us/library/windows/desktop/aa366045(v=vs.85).aspx" />
-    /// </summary>
     public static IntPtr IcmpHandle
     {
         get
@@ -25,7 +17,6 @@ public static class Interop
         }
     }
 
-    /// <summary>Returns the the marshaled size of the reply struct.</summary>
     public static int ReplyMarshalLength
     {
         get

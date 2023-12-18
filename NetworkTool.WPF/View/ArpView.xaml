@@ -1,0 +1,43 @@
+﻿<UserControl x:Class="NetworkTool.WPF.View.ArpView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:viewmodel="clr-namespace:NetworkTool.WPF.ViewModel"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=viewmodel:ArpViewModel}"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Vertical">
+            <Button IsEnabled="False" Content="Flush ARP Table" Command="{Binding FlushArpTableCommand}" />
+            <Button Content="Update Table" Command="{Binding UpdateArpTableCommand}" />
+        </StackPanel>
+        <ListBox Grid.Column="1" Grid.Row="0" ItemsSource="{Binding ArpTableInterfaceModels}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Expander IsExpanded="{Binding IsExpanded}" Header="{Binding InterfaceInfo}">
+                        <ListBox ItemsSource="{Binding ArpEntries}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                                        <TextBlock VerticalAlignment="Center" TextAlignment="Right" MinWidth="160"
+                                                   Text="{Binding MacAddress}" />
+                                        <TextBlock VerticalAlignment="Center" Text=" | " />
+                                        <TextBlock VerticalAlignment="Center" MinWidth="160" Text="{Binding IpAddress}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Expander>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </Grid>
+</UserControl>

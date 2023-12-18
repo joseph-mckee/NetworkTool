@@ -2,39 +2,35 @@
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
-using QuickScan.Lib;
+using NetworkTool.Lib.IP;
 
 namespace NetworkTool.Lib.Arp;
 
 public static class Arp
 {
     [DllImport("iphlpapi.dll", ExactSpelling = true)]
-    private static extern int SendARP(int destIp, int srcIp, [Out] byte[] pMacAddr, ref uint phyAddrLen);
+    private static extern int SendARP(uint destIp, uint srcIp, [Out] byte[] pMacAddr, ref uint phyAddrLen);
 
-    public static async Task<string> SendArpAsync(string ipAddress)
+    public static async Task<string> SendArpAsync(IPAddress ipAddress, IPAddress sourceIPAddress)
     {
-        return await Task.Run(() =>
+        try
         {
-            try
-            {
-                var addr = IPAddress.Parse(ipAddress);
-                var macAddr = new byte[6];
-                var macAddrLen = (uint)macAddr.Length;
-                var result = SendARP(BitConverter.ToInt32(addr.GetAddressBytes(), 0),
-                    BitConverter.ToInt32(
-                        NetworkInfoManager.GetCurrentNetworkInfo().Address?.GetAddressBytes() ??
-                        throw new InvalidOperationException(), 0), macAddr, ref macAddrLen);
-                if (result != 0) return "Unknown";
-                var str = new string[(int)macAddrLen];
-                for (var i = 0; i < macAddrLen; i++) str[i] = macAddr[i].ToString("x2");
-                return string.Join(":", str).ToUpper();
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.ToString());
-                return "Unknown";
-            }
-        });
+            var macAddr = new byte[6];
+            var macAddrLen = (uint)macAddr.Length;
+            var result = await Task.Run(() => SendARP(IPMath.IPToBits(ipAddress, false),
+                IPMath.IPToBits(sourceIPAddress, false),
+                macAddr,
+                ref macAddrLen));
+            if (result != 0) return "Unknown";
+            var str = new string[(int)macAddrLen];
+            for (var i = 0; i < macAddrLen; i++) str[i] = macAddr[i].ToString("x2");
+            return string.Join(":", str).ToUpper();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(ex.ToString());
+            return "Unknown";
+        }
     }
 
     [DllImport("IpHlpApi.dll")]
@@ -95,6 +91,11 @@ public static class Arp
         }
 
         return list;
+    }
+
+    public static ArpEntry? GetArpEntry(IPAddress address)
+    {
+        return GetArpCache().FirstOrDefault(entry => entry.IpAddress == address.ToString());
     }
 
     [StructLayout(LayoutKind.Sequential)]

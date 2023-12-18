@@ -2,12 +2,13 @@
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
+using NetworkTool.Lib.IP;
 
 namespace NetworkTool.Lib.Ping;
 
 public static class PingEx
 {
-    public static PingReplyEx Send(IPAddress? srcAddress, IPAddress destAddress, int timeout = 5000,
+    public static PingReplyEx Send(IPAddress srcAddress, IPAddress destAddress, int timeout = 5000,
         byte[]? buffer = null, PingOptions? po = null)
     {
         if (destAddress is not { AddressFamily: AddressFamily.InterNetwork } ||
@@ -15,8 +16,8 @@ public static class PingEx
             throw new ArgumentException();
 
         //Defining pinvoke args
-        var source = srcAddress == null ? 0 : BitConverter.ToUInt32(srcAddress.GetAddressBytes(), 0);
-        var destination = BitConverter.ToUInt32(destAddress.GetAddressBytes(), 0);
+        var source = IPMath.IPToBits(srcAddress, false);
+        var destination = IPMath.IPToBits(destAddress, false);
         var sendBuffer = buffer;
         var options = new Interop.Option
         {

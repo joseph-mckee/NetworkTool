@@ -2,7 +2,7 @@
 
 public class ArpEntry
 {
-    public string? IpAddress { get; set; }
-    public string? MacAddress { get; set; }
-    public int Index { get; set; }
+    public string? IpAddress { get; init; }
+    public string? MacAddress { get; init; }
+    public int Index { get; init; }
 }
